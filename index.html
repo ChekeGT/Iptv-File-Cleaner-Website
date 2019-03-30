@@ -50,6 +50,8 @@
         <h1 class="masthead-heading mb-0">Modifica y limpia listas</h1>
         <h2 class="masthead-subheading mb-0">De una manera super facil</h2>
         <a href="#" class="btn btn-primary btn-xl rounded-pill mt-5">Descargar</a>
+        <a href="#" id="buy-button" class="btn btn-primary btn-xl rounded-pill mt-5" style="display: none">Comprar</a>
+
       </div>
     </div>
     <div class="bg-circle-1 bg-circle"></div>
@@ -123,6 +125,21 @@
   <!-- Bootstrap core JavaScript -->
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Paypal -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AXWlMC7DoXNYqL6zWho3XefvJ8sMBfgh8oI-VQz0OlFWkkWXVlEhkhGje8NBd2A2Umhjaom0XBzTpPyp">
+  </script>
+  <script>
+      token = window.localStorage.getItem('token');
+      is_premium = window.localStorage.getItem('is_premium');
+      if (is_premium === null){
+      }
+      else if (token && !is_premium) {
+          const buy_button = document.getElementById('buy-button')
+          buy_button.style.display = 'inline-block'
+          paypal.Buttons().render('#buy-button')
+      }
+  </script>
 
 </body>
 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>One Page Wonder - Start Bootstrap Template</title>
+
+        <!-- Bootstrap core CSS -->
+        <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom fonts for this template -->
+        <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="css/one-page-wonder.min.css" rel="stylesheet">
+
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">Iptv File Cleaner</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="login.html">Registrarse</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Iniciar Sesion</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container h-100" style="margin-top: 150px;">
+            <div class="row h-100 justify-content-center align-items-center mt-5">
+                <div class="col-sm-12 col-md-5 col-lg-5 pt-2 pl-5 pr-5 pb-5" id="auth-container">
+                    <img src="img/logo.png" class="img-fluid rounded mx-auto d-block pb-4" style="max-width: 60%;">
+
+
+
+                    <form id='login_form'>
+                        <div id="errors" class="errors">
+
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="text" name="username" placeholder="Nombre de usuario:">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="password" name="password" placeholder="Contraseña:">
+                        </div>
+
+                        <p class="text">No tienes una cuenta? <a class="alert-link" href="http://localhost:8000/signup/">Crear una</a></p>
+
+                        <button class="btn btn-primary btn-block" id="submit-form" type="submit">Iniciar sesion</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            const form = document.getElementById('login_form');
+            const get_token = async form => {
+                const data = new FormData(form);
+                const url = 'http://localhost:8000/users/login/';
+                const response = await fetch(url, {
+                    body: data,
+                    method: 'POST'
+                });
+                const json = await response.json();
+                token = json['access'];
+                return token
+            };
+
+            const is_user_premium = async (form, token) => {
+                const data = new FormData(form);
+                const username = data.get('username');
+                const url = `http://localhost:8000/${username}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `JWT ${token}`
+                    },
+                    body: data
+                });
+                const json = response.json();
+                const user = json['user'];
+                return user['is_premium']
+            };
+            form.addEventListener('submit', async e => {
+                const form = e.target;
+                e.preventDefault();
+                const token = get_token(form);
+                if (token){
+                    const is_premium = is_user_premium(form, token);
+                    window.localStorage.setItem('token', token);
+                    window.localStorage.setItem('is_premium', is_premium);
+                    location.href = 'index.html'
+                }
+                else{
+                   const errors_div = document.getElementById('errors');
+                   errors_div.innerHTML = '<p class="alert alert-danger">Credenciales Invalidas.</p>'
+                }
+            })
+        </script>
+    </body>
+</html>
