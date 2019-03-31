@@ -16,7 +16,7 @@
   <!-- Custom fonts for this template -->
   <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
-
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
   <!-- Custom styles for this template -->
   <link href="css/one-page-wonder.min.css" rel="stylesheet">
 
@@ -135,12 +135,52 @@
         const is_premium_exists = window.localStorage.getItem('is_premium');
         return token && is_premium_exists
       };
+      const update_is_premium = async () => {
+        const username = window.localStorage.getItem('username');
+        const url = `http://localhost/users/${username}/`;
+        const response = await fetch(url);
+        const json = await response.json();
+        window.localStorage.setItem('is_premium', json.is_premium)
+      };
       token = window.localStorage.getItem('token');
       is_premium = window.localStorage.getItem('is_premium');
       if (token && is_premium === "false") {
-          const buy_button = document.getElementById('buy-button')
-          buy_button.style.display = 'inline-block'
-          paypal.Buttons().render('#buy-button')
+          const buy_button = document.getElementById('buy-button');
+          buy_button.style.display = 'inline-block';
+         paypal.Buttons({
+                createOrder: function(data, actions) {
+                  return actions.order.create({
+                    purchase_units: [{
+                      amount: {
+                        value: '5'
+                      }
+                    }]
+                  });
+                },
+                onApprove: function(data, actions) {
+                  // Capture the funds from the transaction
+                  return actions.order.capture().then(function(details) {
+                    // Show a success message to your buyer
+                    swal.fire('Transaccion completada :)', details.payer.name.given_name, 'success');
+                    return fetch('http://localhost/paypal/transaction-complete', {
+                      method: 'POST',
+                      headers: {
+                        'content-type': 'application/json',
+                        'Authorization': `JWT ${token}`
+                      },
+                      body: JSON.stringify({
+                        orderID: data.orderID
+                      })
+                    }).then(n => {
+                      update_is_premium();
+                      const buy_button = document.getElementById('buy-button');
+                      buy_button.style.display = 'none';
+                      swal.fire('Felicidades, ahora eres premium', 'Descarga la app inicia sesion y disfrutalo :D', 'success')
+                      return n
+                    })
+                  });
+                }
+              }).render('#buy-button');
       }
 
       if (is_logged()){

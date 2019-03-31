@@ -30,10 +30,10 @@
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="login.html">Registrarse</a>
+                            <a class="nav-link" href="register.html">Registrarse</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Iniciar Sesion</a>
+                            <a class="nav-link" href="login.html">Iniciar Sesion</a>
                         </li>
                     </ul>
                 </div>
@@ -89,7 +89,7 @@
                     },
                 });
                 const json = await response.json();
-                return json.is_premium
+                return [json.is_premium,json.username]
             };
             form.addEventListener('submit', async e => {
                 const form = e.target;
@@ -98,7 +98,8 @@
                 if (token){
                     const is_premium = await is_user_premium(form, token);
                     window.localStorage.setItem('token', token);
-                    window.localStorage.setItem('is_premium', is_premium);
+                    window.localStorage.setItem('is_premium', is_premium[0]);
+                    window.localStorage.setItem('username', is_premium[1]);
                     location.href = 'index.html'
                 }
                 else{
